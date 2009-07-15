@@ -152,7 +152,7 @@ public class OAuthMessage {
         return callback;
     }
 
-    public void setCallback(String callbak) {
+    public void setCallback(String callback) {
         this.callback = callback;
     }
 
@@ -388,10 +388,10 @@ public class OAuthMessage {
             while (keys.hasMoreElements()) {
                 try {
                     key = (String) keys.nextElement();
-                    if (key.indexOf("oauth_") == -1) {
+//                    if (key.indexOf("oauth_") == -1) {
                         encodedMessage += "&" + key + "="
                             + encoder.encode((String) requestParameters.get(key));
-                    }
+//                    }
                 } catch (java.util.NoSuchElementException e) {
                     ;
                 }

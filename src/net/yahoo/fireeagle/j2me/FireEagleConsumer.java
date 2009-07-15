@@ -37,15 +37,15 @@ public class FireEagleConsumer {
     }
     
     public RequestToken fetchNewRequestToken() throws OAuthServiceProviderException {
-        requestToken = oauthConsumer.getRequestToken(OAUTH_HOST+REQUEST_TOKEN_URL);
+        requestToken = oauthConsumer.getRequestToken(OAUTH_HOST+REQUEST_TOKEN_URL, "oob");
         return requestToken;
     }
     
-    public AccessToken fetchNewAccessToken() throws OAuthServiceProviderException, BadTokenStateException {
+    public AccessToken fetchNewAccessToken(String verifier) throws OAuthServiceProviderException, BadTokenStateException {
         if (requestToken==null) {
             throw new BadTokenStateException("No request token set");
         }
-        accessToken = oauthConsumer.getAccessToken(OAUTH_HOST+ACCESS_TOKEN_URL, requestToken);
+        accessToken = oauthConsumer.getAccessToken(OAUTH_HOST+ACCESS_TOKEN_URL, requestToken, verifier);
         requestToken = null; // it's no good after being used
         return accessToken;
     }

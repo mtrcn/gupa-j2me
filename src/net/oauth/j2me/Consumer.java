@@ -69,14 +69,23 @@ public class Consumer {
     }
 
     //
-    // Token request messages
+    // Old way of doing things without passing a callback.
     //
     public RequestToken getRequestToken(String endpoint) throws OAuthServiceProviderException {
+        return getRequestToken(endpoint, null);
+    }
+
+    //
+    // Token request messages
+    //
+    public RequestToken getRequestToken(String endpoint, String app_callback) throws OAuthServiceProviderException {
         RequestToken token = null;
 
         OAuthMessage requestMessage = new OAuthMessage();
         requestMessage.setRequestURL(endpoint);
         requestMessage.setConsumerKey(config.getKey());
+        if (app_callback != null)
+            requestMessage.setCallback(app_callback);
         requestMessage.createSignature(signatureMethod, config.getSecret());
         
         String url=endpoint + "?" + requestMessage.convertToUrlParameters();
@@ -98,12 +107,17 @@ public class Consumer {
             System.out.println(e.toString());
             return null;
         }
+
+        if ((app_callback != null) && (responseMessage.getAdditionalProperty("oauth_callback_confirmed") == null)) {
+            System.out.println("Server response error: Expected server to respond with oauth_callback_confirmed");
+            return null;
+        }
         token=new RequestToken(responseMessage.getToken(), responseMessage.getTokenSecret());
         return token;        
     }
 
     // returns null if something goes wrong
-    public AccessToken getAccessToken(String endpoint, RequestToken requestToken) throws OAuthServiceProviderException, BadTokenStateException{
+    public AccessToken getAccessToken(String endpoint, RequestToken requestToken, String verifier) throws OAuthServiceProviderException, BadTokenStateException{
         if (requestToken.getExchanged()) {
             throw new BadTokenStateException("Request token already used");
         }
@@ -115,7 +129,9 @@ public class Consumer {
         requestMessage.setConsumerKey(config.getKey());
         requestMessage.setToken(requestToken.getToken());
         requestMessage.setTokenSecret(requestToken.getSecret());
-        requestMessage.setCallback(config.getCallbackEndpoint());
+        //requestMessage.setCallback(config.getCallbackEndpoint());
+        if ((verifier != null) && (verifier.length() > 0))
+            requestMessage.setAdditionalProperty("oauth_verifier", verifier);
         requestMessage.createSignature(signatureMethod, config.getSecret());
 
        
