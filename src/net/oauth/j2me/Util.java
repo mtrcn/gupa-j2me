@@ -9,9 +9,10 @@
 
 package net.oauth.j2me;
 import java.io.ByteArrayOutputStream;
-import java.io.DataInputStream;
 import java.io.IOException;
 import java.io.OutputStream;
+import java.io.InputStream;
+import java.io.DataInputStream;
 import java.util.Enumeration;
 import java.util.Hashtable;
 import java.util.Vector;
@@ -146,11 +147,50 @@ public class Util {
         }
         return (sb.toString());
     }
-    
+
+    /*
+     * Copied from : http://developers.sun.com/mobility/midp/questions/calcbyte/
+     */
+    private static byte[] readFromHTTPConnection(HttpConnection hpc) {
+        byte[] bytes;
+
+        try {
+            InputStream in = hpc.openDataInputStream();
+            int length = (int) hpc.getLength();
+            if (length == -1) {
+                // Reading from an HTTP 1.0 server or a chunked HTTP 1.1
+                ByteArrayOutputStream baos = new ByteArrayOutputStream();
+                int c ;
+                while (true) {
+                    c = in.read();
+                    if (c == -1)
+                        break;
+                    baos.write(c);
+                }
+                bytes = baos.toByteArray();
+                baos.close();
+                baos = null;
+            } else {
+                // Reading a Content-Length labeled payload
+                bytes = new byte[length];
+                DataInputStream dis = new DataInputStream(in);
+                dis.readFully(bytes, 0, length);
+                dis.close();
+                dis = null;
+            }
+            in.close();
+            in = null;
+        } catch (IOException e) {
+            System.out.println("Could not open input stream for HTTP conneciton");
+            return null;
+        }
+
+        return bytes;
+    }
+
     public static final String postViaHttpsConnection(String fullUrl) throws IOException, OAuthServiceProviderException {
         String[] urlPieces=split(fullUrl, "?");
         HttpsConnection c = null;
-        DataInputStream dis = null;
         OutputStream os = null;
         int rc;
         String respBody = new String(""); // return empty string on bad things
@@ -170,7 +210,7 @@ public class Util {
             os = c.openOutputStream();
             System.out.println("UTIL -- writing POST data: "+urlPieces[1]);
             os.write(urlPieces[1].getBytes());
-            os.flush();           // Optional, getResponseCode will flush
+            //os.flush();           // Optional, getResponseCode will flush
             
             // Getting the response code will open the connection,
             // send the request, and read the HTTP response headers.
@@ -180,27 +220,12 @@ public class Util {
             int len = c.getHeaderFieldInt("Content-Length", 0);
             //int len = (int)c.getLength();
             System.out.println("content-length="+len);
-            dis = c.openDataInputStream();
             
-            byte[] data = new byte[len];
-            if (len == 0) {
-                System.out.println("UTIL -- no length, reading individual characters...");
-                ByteArrayOutputStream tmp = new ByteArrayOutputStream();
-                int ch;
-                while( ( ch = dis.read() ) != -1 ) {
-                    tmp.write( ch );
-                }
-                data = tmp.toByteArray();
-            } else {
-                System.out.println("UTIL -- got a length, reading...");
-                dis.readFully(data);
-            }
+            byte[] data = Util.readFromHTTPConnection(c);
             respBody=new String(data);
         } catch (ClassCastException e) {
             throw new IllegalArgumentException("Not an HTTP URL");
         } finally {
-            if (dis != null)
-                dis.close();
             if (os != null)
                 os.close();
             if (c != null)
@@ -214,8 +239,6 @@ public class Util {
     
     public static final String getViaHttpsConnection(String url) throws IOException, OAuthServiceProviderException {
         HttpsConnection c = null;
-        DataInputStream dis = null;
-        OutputStream os = null;
         int rc;
         String respBody = new String(""); // return empty string on bad things
         // TODO -- better way to handle unexpected responses
@@ -239,28 +262,12 @@ public class Util {
             int len = c.getHeaderFieldInt("Content-Length", 0);
 
             System.out.println("content-length="+len);
-            dis = c.openDataInputStream();
             
-            byte[] data = null; 
-            if (len == -1L) {
-                System.out.println("UTIL -- no length, reading individual characters...");
-                ByteArrayOutputStream tmp = new ByteArrayOutputStream();
-                int ch;
-                while( ( ch = dis.read() ) != -1 ) {
-                    tmp.write( ch );
-                }
-                data = tmp.toByteArray();
-            } else {
-                System.out.println("UTIL -- got a length, reading...");
-                data = new byte[len];
-                dis.read(data);
-            }
+            byte[] data = Util.readFromHTTPConnection(c);
             respBody=new String(data);
         } catch (ClassCastException e) {
             throw new IllegalArgumentException("Not an HTTP URL");
         } finally {
-            if (dis != null)
-                dis.close();
             if (c != null)
                 c.close();
         }

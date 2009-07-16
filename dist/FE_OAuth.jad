@@ -1,0 +1,7 @@
+MIDlet-Jar-Size: 27926
+MIDlet-Jar-URL: FE_OAuth.jar
+MIDlet-Name: FE_OAuth
+MIDlet-Vendor: Vendor
+MIDlet-Version: 1.0
+MicroEdition-Configuration: CLDC-1.1
+MicroEdition-Profile: MIDP-2.0
