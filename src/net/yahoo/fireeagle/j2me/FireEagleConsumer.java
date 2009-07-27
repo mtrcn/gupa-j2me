@@ -25,6 +25,7 @@ public class FireEagleConsumer {
     public static final String MOBILE_AUTH_URL="http://fireeagle.yahoo.net/oauth/mobile_auth/31"; //31
     public static final String UPDATE_API_URL="/api/0.1/update";
     public static final String QUERY_API_URL="/api/0.1/user";
+    public static final String LOOKUP_API_URL="/api/0.1/lookup";
     
     private Consumer oauthConsumer;
     private RequestToken requestToken;
@@ -55,6 +56,13 @@ public class FireEagleConsumer {
             throw new BadTokenStateException("No access token set");
         }
         return oauthConsumer.accessProtectedResource(OAUTH_HOST+UPDATE_API_URL, accessToken, queryParams, "POST");
+    }
+
+    public String lookupLocation(Hashtable queryParams) throws OAuthServiceProviderException, BadTokenStateException, IOException {
+        if (accessToken==null) {
+            throw new BadTokenStateException("No access token set");
+        }
+        return oauthConsumer.accessProtectedResource(OAUTH_HOST+LOOKUP_API_URL, accessToken, queryParams, "POST");
     }
     
     public String queryUserLocation() throws OAuthServiceProviderException, BadTokenStateException, IOException {
