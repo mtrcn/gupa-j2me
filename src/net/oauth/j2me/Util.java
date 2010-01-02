@@ -20,6 +20,20 @@ import javax.microedition.io.Connector;
 import javax.microedition.io.HttpConnection;
 import javax.microedition.io.HttpsConnection;
 
+/*
+ * Special note on Blackberry for HTTPS connection. Please see:
+ * http://blog.neonascent.net/archives/fireeagle-in-j2me-on-a-blackberry-bold/
+ *
+ * In short:
+ * 1. We need to detect if we are running on Blackberry...
+ * http://osdir.com/ml/java.sun.kvm/2003-07/msg00051.html says that we can check
+ * System.getProperty("microedition.platform") == "RIM Wireless Handheld"
+ *
+ * 2. If we are on Blackberry, then, we need to detect the connection type:
+ * Try http://www.localytics.com/blog/post/how-to-reliably-establish-a-network-connection-on-any-blackberry-device/
+ * which also provides some sample source code.
+ */
+
 /**
  *
  * @author Administrator
@@ -28,6 +42,20 @@ public class Util {
     
     /** Creates a new instance of Util */
     public Util() {
+    }
+
+    public static final boolean checkForBlackberry() {
+        /**
+         * Try to detect Blackberry. Refernece:
+         * http://osdir.com/ml/java.sun.kvm/2003-07/msg00051.html
+         */
+        boolean isRIM = false;
+        String tmp = System.getProperty("microedition.platform");
+        if (tmp.equals("RIM Wireless Handheld")) {
+            isRIM = true;
+        }
+
+        return isRIM;
     }
     
     // if the same key occurs in h1 and h2, use the value from h1
@@ -194,6 +222,13 @@ public class Util {
         OutputStream os = null;
         int rc;
         String respBody = new String(""); // return empty string on bad things
+
+        if (Util.checkForBlackberry()) {
+            // Blackberry device. Do some magic! Contributed code from
+            // http://blog.neonascent.net/archives/fireeagle-in-j2me-on-a-blackberry-bold/
+            urlPieces[0] = urlPieces[0] + ";deviceside=false;ConnectionType=mds-public;EndToEndRequired";
+        }
+
         // TODO -- better way to handle unexpected responses
         try {
             System.out.println("UTIL -- posting to "+urlPieces[0]);
@@ -236,12 +271,18 @@ public class Util {
         }
         return respBody;
     }
-    
+
     public static final String getViaHttpsConnection(String url) throws IOException, OAuthServiceProviderException {
         HttpsConnection c = null;
         int rc;
         String respBody = new String(""); // return empty string on bad things
         // TODO -- better way to handle unexpected responses
+
+        if (Util.checkForBlackberry()) {
+            // Blackberry device. Do some magic! Contributed code from
+            // http://blog.neonascent.net/archives/fireeagle-in-j2me-on-a-blackberry-bold/
+            url = url + ";deviceside=false;ConnectionType=mds-public;EndToEndRequired";
+        }
         
         try {
             System.out.println("UTIL -- opening connection");
