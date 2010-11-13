@@ -14,7 +14,7 @@ The minimal you'll need to have is in GUPAConsumer class:
 
 	String consumerKey = "YOUR OAUTH CONSUMER KEY";
     String consumerSecret = "YOUR OAUTH CONSUMER SECRET";
-    gupa = new GUPAConsumer(consumerKey, consumerSecret);
+    GUPAConsumer gupa = new GUPAConsumer(consumerKey, consumerSecret);
 			
 
 To make [GUPA][GUPA] calls:
