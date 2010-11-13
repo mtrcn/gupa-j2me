@@ -3,7 +3,7 @@
     <type>org.netbeans.modules.kjava.j2meproject</type>
     <configuration>
         <data xmlns="http://www.netbeans.org/ns/j2me-project">
-            <name>FE_OAuth</name>
+            <name>gupa-j2me</name>
             <minimum-ant-version>1.6</minimum-ant-version>
         </data>
     </configuration>

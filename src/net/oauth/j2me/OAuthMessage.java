@@ -22,7 +22,8 @@ import java.util.Hashtable;
 import java.util.Date;
 import java.util.Random;
 import net.oauth.j2me.signature.OAuthSignature;
-
+import org.json.me.JSONException;
+import org.json.me.JSONObject;
 
 public class OAuthMessage {
     private String requestMethod;
@@ -42,7 +43,7 @@ public class OAuthMessage {
     public static final String METHOD_POST="POST";
 
     public OAuthMessage() {
-        requestMethod = "GET";
+        requestMethod = "POST";
         version = "1.0";
         signatureMethod = "PLAINTEXT";
 
@@ -241,6 +242,21 @@ public class OAuthMessage {
                 requestParameters.put(singleNameValuePair[0], singleNameValuePair[1]);
             }
         }
+        if ((token==null) && (tokenSecret==null)) {
+            throw new OAuthBadDataException("expected response token and token secret");
+        }
+    }
+
+    public void parseJSONResponseStringFroToken(String response) throws OAuthBadDataException {
+        JSONObject jsonResponse;
+        try{
+             jsonResponse = new JSONObject(response);
+             token = jsonResponse.getString("oauth_token");
+             tokenSecret = jsonResponse.getString("oauth_token_secret");
+        }catch(JSONException e){
+                throw new OAuthBadDataException(e.getMessage());
+        }
+        
         if ((token==null) && (tokenSecret==null)) {
             throw new OAuthBadDataException("expected response token and token secret");
         }

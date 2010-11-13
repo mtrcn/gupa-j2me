@@ -41,7 +41,6 @@ public class OAuthParameterEncoder {
                 // get byte values of the character
                 // and turn them into percent encoding
                 String t = String.valueOf(s.charAt(i));
-
                // try {
                     sb.append(Util.urlEncode(t));
                     //byte[] charBytes = t.getBytes("UTF-8");
@@ -55,4 +54,5 @@ public class OAuthParameterEncoder {
 
         return sb.toString();
     }
+
 }

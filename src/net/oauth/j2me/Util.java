@@ -154,8 +154,8 @@ public class Util {
                         || c == '~'
                         || c == '*'
                         || c == '\''
-                        || c == '('
-                        || c == ')'
+                        //|| c == '('
+                        //|| c == ')'
                         || (c >= 'A' && c <= 'Z')
                         || (c >= 'a' && c <= 'z') ) {
                     sb.append(c);
@@ -218,7 +218,7 @@ public class Util {
 
     public static final String postViaHttpsConnection(String fullUrl) throws IOException, OAuthServiceProviderException {
         String[] urlPieces=split(fullUrl, "?");
-        HttpsConnection c = null;
+        HttpConnection c = null;
         OutputStream os = null;
         int rc;
         String respBody = new String(""); // return empty string on bad things
@@ -232,7 +232,7 @@ public class Util {
         // TODO -- better way to handle unexpected responses
         try {
             System.out.println("UTIL -- posting to "+urlPieces[0]);
-            c = (HttpsConnection)Connector.open(urlPieces[0], Connector.READ_WRITE); // hack for emulator?
+            c = (HttpConnection)Connector.open(urlPieces[0], Connector.READ_WRITE); // hack for emulator?
             
             // Set the request method and headers
             c.setRequestMethod(HttpConnection.POST);

@@ -93,7 +93,7 @@ public class Consumer {
         
         String responseString=null;
         try {
-            responseString=Util.getViaHttpsConnection(url);
+            responseString=Util.postViaHttpsConnection(url);
         } catch (IOException e) { // 
             System.out.println(e.toString());
             return null;
@@ -102,7 +102,7 @@ public class Consumer {
 
         OAuthMessage responseMessage = new OAuthMessage();
         try {
-            responseMessage.parseResponseStringForToken(responseString); // can throw an exception or return null if bad data...
+            responseMessage.parseJSONResponseStringFroToken(responseString); // can throw an exception or return null if bad data...
         } catch (OAuthBadDataException e) {
             System.out.println(e.toString());
             return null;
@@ -139,7 +139,7 @@ public class Consumer {
         System.out.println("Attempting to get AT from "+url);
         String responseString=null;
         try {
-            responseString=Util.getViaHttpsConnection(url);
+            responseString=Util.postViaHttpsConnection(url);
         } catch (IOException e) {
             System.out.println(e.toString());
             return null;
@@ -148,7 +148,7 @@ public class Consumer {
 
         OAuthMessage responseMessage = new OAuthMessage();
         try {
-            responseMessage.parseResponseStringForToken(responseString);
+            responseMessage.parseJSONResponseStringFroToken(responseString);
         } catch (OAuthBadDataException e) {
             System.out.println(e.toString());
             return null;
@@ -172,8 +172,10 @@ public class Consumer {
         requestMessage.setRequestMethod(httpMethod);
         requestMessage.setRequestURL(endpoint);
         requestMessage.setConsumerKey(config.getKey());
-        requestMessage.setToken(accessToken.getToken());
-        requestMessage.setTokenSecret(accessToken.getSecret());
+        if (accessToken!=null){
+            requestMessage.setToken(accessToken.getToken());
+            requestMessage.setTokenSecret(accessToken.getSecret());
+        }
         if (queryParams==null) {
             requestMessage.setAttitionalProperties(new Hashtable());
         } else {
