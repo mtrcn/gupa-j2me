@@ -22,7 +22,7 @@ To make [GUPA][GUPA] calls:
 	Hashtable params = new Hashtable();
     params.put("point", "MULTIPOINT("+azmt_dist_point_1.getString()+", "+azmt_dist_point_2.getString()+")");
     try{
-		String response = consumer.api("/basic_calc/azmt_dist", params, null);
+		String response = gupa.api("/basic_calc/azmt_dist", params, null);
 		JSONObject jsonResponse = new JSONObject(response);
 		if (jsonResponse.getString("error_code").equals("0"))
 			new OAuthServiceProviderException(jsonResponse.getString("error_code"));
